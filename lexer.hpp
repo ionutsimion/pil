@@ -20,6 +20,12 @@ namespace pi
           , multiply
           , divide
           , equals
+          , opened_parenthesis
+          , closed_parenthesis
+          , opened_bracket
+          , closed_bracket
+          , opened_brace
+          , closed_brace
           , error
         };
 

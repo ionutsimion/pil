@@ -53,6 +53,12 @@ pi::tokens_t &pi::lexer_t::operator ()()
         case ':': [[fallthrough]];
         case '/': tokens_.emplace_back(token_t::type_t::divide, token_begin_, ++cursor_, std::nullopt); break;
         case '=': tokens_.emplace_back(token_t::type_t::equals, token_begin_, ++cursor_, std::nullopt); break;
+        case '(': tokens_.emplace_back(token_t::type_t::opened_parenthesis, token_begin_, ++cursor_, std::nullopt); break;
+        case ')': tokens_.emplace_back(token_t::type_t::closed_parenthesis, token_begin_, ++cursor_, std::nullopt); break;
+        case '[': tokens_.emplace_back(token_t::type_t::opened_bracket, token_begin_, ++cursor_, std::nullopt); break;
+        case ']': tokens_.emplace_back(token_t::type_t::closed_bracket, token_begin_, ++cursor_, std::nullopt); break;
+        case '{': tokens_.emplace_back(token_t::type_t::opened_brace, token_begin_, ++cursor_, std::nullopt); break;
+        case '}': tokens_.emplace_back(token_t::type_t::closed_brace, token_begin_, ++cursor_, std::nullopt); break;
         default:
             if (std::isdigit(c))
             {
