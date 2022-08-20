@@ -36,6 +36,8 @@ pi::tokens_t &pi::lexer_t::operator ()()
     if (!tokens_.empty())
         return tokens_;
 
+    auto token_type = token_t::type_t::error;
+    std::optional<pi::cursor_t> error_location = std::nullopt;
     while (cursor_  != code_.cend())
     {
         if (std::isspace(*cursor_))
@@ -47,33 +49,34 @@ pi::tokens_t &pi::lexer_t::operator ()()
         token_begin_ = cursor_;
         switch (auto c = *cursor_; c)
         {
-        case '+': tokens_.emplace_back(token_t::type_t::plus, token_begin_, ++cursor_, std::nullopt); break;
-        case '-': tokens_.emplace_back(token_t::type_t::minus, token_begin_, ++cursor_, std::nullopt); break;
-        case '*': tokens_.emplace_back(token_t::type_t::multiply, token_begin_, ++cursor_, std::nullopt); break;
+        case '+': ++cursor_, token_type = token_t::type_t::plus; break;
+        case '-': ++cursor_, token_type = token_t::type_t::minus; break;
+        case '*': ++cursor_, token_type = token_t::type_t::multiply; break;
         case ':': [[fallthrough]];
-        case '/': tokens_.emplace_back(token_t::type_t::divide, token_begin_, ++cursor_, std::nullopt); break;
-        case '=': tokens_.emplace_back(token_t::type_t::equals, token_begin_, ++cursor_, std::nullopt); break;
-        case '(': tokens_.emplace_back(token_t::type_t::opened_parenthesis, token_begin_, ++cursor_, std::nullopt); break;
-        case ')': tokens_.emplace_back(token_t::type_t::closed_parenthesis, token_begin_, ++cursor_, std::nullopt); break;
-        case '[': tokens_.emplace_back(token_t::type_t::opened_bracket, token_begin_, ++cursor_, std::nullopt); break;
-        case ']': tokens_.emplace_back(token_t::type_t::closed_bracket, token_begin_, ++cursor_, std::nullopt); break;
-        case '{': tokens_.emplace_back(token_t::type_t::opened_brace, token_begin_, ++cursor_, std::nullopt); break;
-        case '}': tokens_.emplace_back(token_t::type_t::closed_brace, token_begin_, ++cursor_, std::nullopt); break;
+        case '/': ++cursor_, token_type = token_t::type_t::divide; break;
+        case '=': ++cursor_, token_type = token_t::type_t::equals; break;
+        case '(': ++cursor_, token_type = token_t::type_t::opened_parenthesis; break;
+        case ')': ++cursor_, token_type = token_t::type_t::closed_parenthesis; break;
+        case '[': ++cursor_, token_type = token_t::type_t::opened_bracket; break;
+        case ']': ++cursor_, token_type = token_t::type_t::closed_bracket; break;
+        case '{': ++cursor_, token_type = token_t::type_t::opened_brace; break;
+        case '}': ++cursor_, token_type = token_t::type_t::closed_brace; break;
         default:
             if (std::isdigit(c))
             {
                 cursor_ = scan_number(token_begin_, code_.cend());
-                tokens_.emplace_back(token_t::type_t::number, token_begin_, cursor_, std::nullopt);
+                token_type = token_t::type_t::number;
             }
             else if (std::isalpha(c))
             {
                 cursor_ = scan_variable(token_begin_, code_.cend());
-                tokens_.emplace_back(token_t::type_t::variable, token_begin_, cursor_, std::nullopt);
+                token_type = token_t::type_t::variable;
             }
             else
-                tokens_.emplace_back(token_t::type_t::error, token_begin_, ++cursor_, token_begin_);
+                ++cursor_, token_type = token_t::type_t::error, error_location = token_begin_;
             break;
         }
+        tokens_.emplace_back(token_type, token_begin_, cursor_, error_location);
     }
 
     return tokens_;
